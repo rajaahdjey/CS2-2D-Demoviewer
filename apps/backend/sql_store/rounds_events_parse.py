@@ -5,12 +5,13 @@ import numpy as np
 
 # for reference - this match : https://www.hltv.org/stats/matches/mapstatsid/167144/faze-vs-cloud9
 
-parser = DemoParser("blast-premier-world-final-2023\\84091_mirage.dem")
+# parser = DemoParser("blast-premier-world-final-2023\\84091_mirage.dem")
 
-event_names = sorted(parser.list_game_events())
+
 
 def pre_requisites(parser):
     #these are info that is needed across other functions - everytime other functions are called, they will call this to get the required details.
+    event_names = sorted(parser.list_game_events())
     map_name = parser.parse_header()["map_name"]
     
     if 'begin_new_match' in event_names:
@@ -157,7 +158,7 @@ def tick_positions(parser,match_id):
     ticks_df['mapname'] = map_name
     ticks_df['match_lookup'] = ticks_df["matchid"]+'_'+ticks_df["mapname"]
     ticks_df['key'] = ticks_df["matchid"].astype('str')+'_'+ticks_df["mapname"]+'_'+ticks_df["tick"].astype('str')+'_'+ticks_df['player_steamid'].astype('str')
-    print(ticks_df[['total_rounds_played']])
+    #print(ticks_df[['total_rounds_played']])
     ticks_df.drop(columns=['steamid','name'],inplace=True)
     #sometimes multiple events at same tick are overlapping - this is leading to primary key duplication errors
     ticks_df.drop_duplicates(subset=['key'],keep='first',inplace=True)

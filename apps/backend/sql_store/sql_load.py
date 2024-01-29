@@ -8,6 +8,8 @@ import parser_init
 from demoparser2 import DemoParser
 import rounds_events_parse
 import importlib
+import argparse
+from pathlib import Path
 importlib.reload(rounds_events_parse)
 
 #basic structure to store data 
@@ -21,9 +23,19 @@ importlib.reload(rounds_events_parse)
 #basefilepath where all the demos will be stored 
 #each set of demos for a competition to be stored in a particular folder.
 
-basefilepath = 'D:\\DS Workspace\\CS2 Analysis App\\CS2 Demo Parser Pipeline\\parsing_script'
-tournament_name = 'blast-premier-world-final-2023' #don't keep any \\ here
+parser = argparse.ArgumentParser(description = 'Add demo files to the csv')
 
+parser.add_argument('tournament_name',type=str,help="enter tournament name, there must be folder with same name in basefolder")
+
+args = parser.parse_args()
+
+cwd = str(Path(os.getcwd()).parent.parent.parent.parent)
+
+#print(cwd)
+basefilepath = cwd + '\\Demo_Files'
+print("Base folder set as :" , basefilepath)
+tournament_name = args.tournament_name #'blast-premier-world-final-2023' #don't keep any \\ here
+print("Processing Tournament : ",tournament_name)
 
 if not os.path.exists('testdb.db'):
     conn = sqlite3.connect('testdb.db')
@@ -205,7 +217,7 @@ if not os.path.exists('testdb.db'):
 
                     """)
     
-    print("No DB Found. New DB Created")
+    print("No DB Found. New DB Created. Re-run script to start parsing and storing data in the DB.")
 
 
 else:
