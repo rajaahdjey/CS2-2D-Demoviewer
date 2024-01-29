@@ -4,9 +4,9 @@ import numpy as np
 
 # for reference - this match : https://www.hltv.org/stats/matches/mapstatsid/167144/faze-vs-cloud9
 
-parser = DemoParser("blast-premier-world-final-2023\\84091_mirage.dem")
+# parser = DemoParser("blast-premier-world-final-2023\\84091_mirage.dem")
 
-event_names = sorted(parser.list_game_events())
+# event_names = sorted(parser.list_game_events())
 
 # print(event_names)
 
