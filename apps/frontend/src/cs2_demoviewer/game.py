@@ -13,12 +13,14 @@ import numpy as np
 import sqlite3
 import plot_funcs
 import time
-
+from pathlib import Path
+import os
 #2 gui options for pygame that build on top of pygame 
 import pygame_gui
 import thorpy as tp
-
-conn = sqlite3.connect('testdb.db')
+cwd = str(Path(os.getcwd()).parent.parent.parent)+"\\backend\\sql_store\\testdb.db"
+print(cwd)
+conn = sqlite3.connect(cwd)
 cursor = conn.cursor()
 map_name='de_mirage' #hardcoded for now
 #query = f"SELECT * FROM team_summary"
@@ -41,7 +43,7 @@ df = pd.read_sql(query,conn)
 #print(df.head())
 match_list = df['matchid'].unique()
 df [['x_pos','y_pos']] = df.apply(lambda x: plot_funcs.plot_transform(map_name,(x['X'],x['Y'])),axis=1).apply(pd.Series)
-df ['is_alive'] = df['is_alive'].replace({1:'alive',0:'dead'}).astype('str')
+df ['is_alive'] = df['is_alive'].replace({'1':'alive','0':'dead'}).astype('str')
 df ['team_num'] = df['team_num'].astype('str')
 
 
@@ -217,6 +219,8 @@ def draw_players(tick_time):
         pygame.draw.circle(screen,flash_color,(int((pos[0]+pan_x)*zoom),int((pos[1]+pan_y)*zoom)),int(5*zoom))  #smaller radius for flash, just to indicate that there is a flash thrown
 
     for player , pos in player_circles.items():
+        print("Player :",player)
+        print(pos)
         if pos[2] == '3.0':
             color_val = ct
         elif pos[2] == '2.0':
@@ -312,7 +316,7 @@ while running:
 
         manager.process_events(event)
 
-    print(f"Tick: {current_tick} ")
+    #print(f"Tick: {current_tick} ")
     if not paused:
         draw_players(tick_times[current_tick])
         current_tick = (current_tick + 1) % len(tick_times)
