@@ -5,7 +5,7 @@ import numpy as np
 
 # for reference - this match : https://www.hltv.org/stats/matches/mapstatsid/167144/faze-vs-cloud9
 
-# parser = DemoParser("blast-premier-world-final-2023\\84091_mirage.dem")
+parser = DemoParser("D:\\DS Workspace\\Github Projects\\Demo_Files\\blast-premier-world-final-2023\\84091_mirage.dem")
 
 
 
@@ -14,12 +14,12 @@ def pre_requisites(parser):
     event_names = sorted(parser.list_game_events())
     map_name = parser.parse_header()["map_name"]
     
-    if 'begin_new_match' in event_names:
-        begin_new_match_df = parser.parse_event('begin_new_match')
-        # print(begin_new_match_df)
-    else:
-        begin_new_match_df = None
-    match_start_tick = begin_new_match_df['tick'].iloc[0] if begin_new_match_df is not None else 0
+    # if 'begin_new_match' in event_names:
+    #     begin_new_match_df = parser.parse_event('begin_new_match')
+    #     # print(begin_new_match_df)
+    # else:
+    #     begin_new_match_df = None
+    match_start_tick = parser.parse_event("round_start")["tick"].min()
     match_end_tick = parser.parse_event("round_end")["tick"].max()
 
     return match_start_tick,match_end_tick,map_name
@@ -139,7 +139,7 @@ def tick_positions(parser,match_id):
    
     for event in important_events:
         #sometimes event can return empty list aka no matches during parsing - zero bomb defusals in this match https://www.hltv.org/stats/matches/mapstatsid/168204/faze-vs-mouz
-        #print(event)
+        print(event)
         ticks_parsed = parser.parse_event(event,player=["X", "Y"])
         if(len(ticks_parsed)==0):
             print(f"No parsed elements for event: {event}")
@@ -156,15 +156,19 @@ def tick_positions(parser,match_id):
     ticks_df = parser.parse_ticks(wanted_props = params_needed,ticks=imp_events_ticks)
     ticks_df['matchid'] = match_id
     ticks_df['mapname'] = map_name
-    ticks_df['match_lookup'] = ticks_df["matchid"]+'_'+ticks_df["mapname"]
+    ticks_df['match_lookup'] = ticks_df["matchid"].astype('str')+'_'+ticks_df["mapname"]
     ticks_df['key'] = ticks_df["matchid"].astype('str')+'_'+ticks_df["mapname"]+'_'+ticks_df["tick"].astype('str')+'_'+ticks_df['player_steamid'].astype('str')
     #print(ticks_df[['total_rounds_played']])
     ticks_df.drop(columns=['steamid','name'],inplace=True)
     #sometimes multiple events at same tick are overlapping - this is leading to primary key duplication errors
     ticks_df.drop_duplicates(subset=['key'],keep='first',inplace=True)
     #print(ticks_df.key.value_counts())
-    #ticks_df.to_csv('ticks_check.csv',index=False)
+    ticks_df.sort_values(by=['player_steamid','tick'],inplace=True)
+    ticks_df.ffill(axis=0,inplace=True)
+    ticks_df.to_csv('ticks_check.csv',index=False)
+    
     return ticks_df
 
 
-#tick_positions(parser,232324).to_csv('tick_pos_check.csv',index=False)
+tick_positions(parser,232324).to_csv('tick_pos_check.csv',index=False)
+print("Saved to csv")
